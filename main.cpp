@@ -23,10 +23,10 @@ const char* vertexShaderSource = "#version 330 core\n"
 */
 const char* fragmentShaderSource1 = "#version 330 core\n"
 "out vec4 FragColor;\n"
-"in vec4 vertexColor;\n"
+"uniform vec4 ourColor;\n"
 "void main()\n"
 "{\n"
-"   FragColor = vertexColor;\n"
+"FragColor = ourColor;\n"
 "}\n\0";
 
 
@@ -204,6 +204,19 @@ int main()
 		//Draw Vertix
 
 		glUseProgram(shaderProgram1);
+		//Update Shader input
+		float timeValue1 = glfwGetTime()+0;//get time
+		float timeValue2 = glfwGetTime()+4;//get time
+		float timeValue3 = glfwGetTime()+8;//get time
+
+		float greenValue = (sin(timeValue1) / 2.0f) + 0.5f; //calculate value for the Green Color
+		float redValue = (sin(timeValue2) / 2.0f) + 0.5f; //calculate for red
+		float blueValue = (sin(timeValue3) / 2.0f) + 0.5f; //calculate for red
+		int vertexColorLocation = glGetUniformLocation(shaderProgram1, "ourColor"); // get location ofuniform object called ourColor
+		glUseProgram(shaderProgram1); //tell program which shader to use
+		glUniform4f(vertexColorLocation, redValue, greenValue, blueValue, 1.0f); //set the uniform  value.
+
+
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
