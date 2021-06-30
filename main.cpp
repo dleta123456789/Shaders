@@ -1,37 +1,8 @@
 #include <glad/glad.h>
 #include <GLFW\glfw3.h>
+#include "shaders.h"
 #include <iostream>
 using namespace std;
-
-/*
-*Store the source code for vertix shader and store it in a c string.
-*/
-const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"out vec4 vertexColor;\n"
-"void main()\n"
-"{\n"
-" gl_Position = vec4(aPos, 1.0);\n" //give the  vector4 constructor data from vector 3
-"vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n" //set the color to dark red
-"}\0";
-//First Fragment shader
-/*
-*store the souce code for fragment shader here as a c string
-* could change the color of pixels here as  well
-* Fragment color is in the RGBA format
-* Red,Green,Blue,Alpha
-*/
-const char* fragmentShaderSource1 = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"uniform vec4 ourColor;\n"
-"void main()\n"
-"{\n"
-"FragColor = ourColor;\n"
-"}\n\0";
-
-
-
-////////////----------------END OF GLSL
 
 /*
 *	Callback function to resize the GLFW window.
@@ -99,54 +70,8 @@ int main()
 	//calling the resize function
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	//----------------------------------- Shader Code here: Vertex,Fragment nad then link shaders
-	/*
-	*Create a shader object and create the shader with Create Shader
-	*/
-	unsigned int vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-
-	/*
-	*After creating shader we need to attach source code with the shader object
-	* Parameters:
-	* vertex shader object
-	* number of strings  and arrays being passed as source code
-	* actual source code
-	*  its the array of string length which we hve kept null
-	*/
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-	/*
-	*Should add a check for compile time errors.
-	* Have a integer to check if it compile or not
-	* create a info log  charater array
-	* check compilation succeded with GlShaderiv
-	* If it failed then we need to retrieve error message with GetShaderInfoLog
-	* and output the error
-	*/
-
-	int success;
-	char infoLog[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" <<
-			infoLog << std::endl;
-	}
-
-	//FRAGMENT 1
-	unsigned int fragmentShader1;
-	fragmentShader1 = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader1, 1, &fragmentShaderSource1, NULL);
-	glCompileShader(fragmentShader1);
-	unsigned int shaderProgram1;
-	shaderProgram1 = glCreateProgram();
-	glAttachShader(shaderProgram1, vertexShader);
-	glAttachShader(shaderProgram1, fragmentShader1);
-	glLinkProgram(shaderProgram1);
-	
-
+	//build and compile shader
+	Shader ourShader("vertex.s", "fragment.s");
 	/*
 	*If we want to see the verticesw only then we can use wirefram to see how the objects are connected
 	* We can use polygon mode to see that
@@ -163,9 +88,10 @@ int main()
 	//Comments removed for ease of use in excercise
 
 	float vertice1[] = {
-		0.1, 0.4f, 0.0f, // top right
-		0.0f, 0.0f, 0.0f, // bottom right
-		0.2f, 0.0f, 0.0f, // bottom left
+		// positions=x,y,z colors=rgb
+		0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom right
+		-0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom left
+		0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f // top
 	};
 
 	unsigned int VBO;
@@ -177,9 +103,11 @@ int main()
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertice1), vertice1, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);//position attribute 
 	glEnableVertexAttribArray(0);
-	
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),(void*)(3 * sizeof(float)));//color attribute
+	glEnableVertexAttribArray(1);
+
 
 	/*
 	* Code to only allow explict closing.
@@ -203,11 +131,12 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 		//Draw Vertix
 
-		glUseProgram(shaderProgram1);
+		ourShader.use();
 		//Update Shader input
-		float timeValue1 = glfwGetTime()+0;//get time
-		float timeValue2 = glfwGetTime()+4;//get time
-		float timeValue3 = glfwGetTime()+8;//get time
+		/*
+		float timeValue1 = glfwGetTime();//get time
+		float timeValue2 = glfwGetTime();//get time
+		float timeValue3 = glfwGetTime();//get time
 
 		float greenValue = (sin(timeValue1) / 2.0f) + 0.5f; //calculate value for the Green Color
 		float redValue = (sin(timeValue2) / 2.0f) + 0.5f; //calculate for red
@@ -215,6 +144,8 @@ int main()
 		int vertexColorLocation = glGetUniformLocation(shaderProgram1, "ourColor"); // get location ofuniform object called ourColor
 		glUseProgram(shaderProgram1); //tell program which shader to use
 		glUniform4f(vertexColorLocation, redValue, greenValue, blueValue, 1.0f); //set the uniform  value.
+		*/
+		
 
 
 		glBindVertexArray(VAO);
