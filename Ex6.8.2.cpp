@@ -90,7 +90,7 @@ int main()
 	float vertice1[] = {
 		// positions=x,y,z colors=rgb
 		0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom right
-		0.8f, 0.2f, 0.6f, 0.0f, 1.0f, 0.0f, // bottom left
+		-0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom left
 		0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f // top
 	};
 
@@ -105,7 +105,7 @@ int main()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertice1), vertice1, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);//position attribute 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),(void*)(3 * sizeof(float)));//color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));//color attribute
 	glEnableVertexAttribArray(1);
 
 
@@ -113,6 +113,12 @@ int main()
 	* Code to only allow explict closing.
 	* It is also the render loop
 	*/
+	/*
+	* Offsets are here
+	*/
+	float X_offset = 0.8f;
+	float Y_offset = -0.8f;
+
 	while (!glfwWindowShouldClose(window))
 	{
 		/*
@@ -132,6 +138,10 @@ int main()
 		//Draw Vertix
 
 		ourShader.use();
+
+		ourShader.setFloat("xOffset", X_offset);
+		ourShader.setFloat("yOffset", Y_offset);
+
 		//Update Shader input
 		/*
 		float timeValue1 = glfwGetTime();//get time
@@ -145,7 +155,7 @@ int main()
 		glUseProgram(shaderProgram1); //tell program which shader to use
 		glUniform4f(vertexColorLocation, redValue, greenValue, blueValue, 1.0f); //set the uniform  value.
 		*/
-		
+
 
 
 		glBindVertexArray(VAO);
